@@ -1,0 +1,990 @@
+resource "datadog_dashboard" "dd_{{ .Id }}" {
+  title       = "{{ .Title }}"
+  layout_type = "{{ .LayoutType }}"
+  {{ if .Description -}}
+  description = "{{ .Description }}"
+  {{- end }}
+  {{ if .IsReadOnly -}}
+  read_only   = {{ .IsReadOnly }}
+  {{- end }}
+  {{ if .Url -}}
+  url   = "{{ .Url }}"
+  {{- end }}
+  {{ if .TemplateVariables -}}
+  {{- with .TemplateVariables -}}
+  {{- range . -}}
+  template_variable {
+    name    = "{{ .Name }}"
+    {{ if .Prefix -}}
+    prefix  = "{{ .Prefix }}"
+    {{- end }}
+    {{ if .Default -}}
+    default = "{{ .Default }}"
+    {{- end }}
+  }
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  {{ if .NotifyList -}}
+  notify_list   = {{ .NotifyList }}
+  {{- end }}
+  {{ if .TemplateVariablePresets -}}
+  {{- with .TemplateVariablePresets -}}
+  {{- range . -}}
+  template_variable_presets {
+    name      = "{{ .Name }}"
+    {{ with .TemplateVariablePresetValue -}}
+    {{ range . -}}
+    template_variable {
+      name    = "{{ .Name }}"
+      value   = "{{ .Value }}"
+    }
+    {{- end }}
+    {{- end }}
+  }
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- with .Widgets -}}
+  {{- range . -}}
+  widget {
+    {{ if .Layout -}}
+    {{ with .Layout -}}
+    layout {
+      x       = {{ .X }}
+      y       = {{ .Y }}
+      width   = {{ .Width }}
+      height  = {{ .Height }}
+    }
+    {{- end }}
+    {{- end }}
+    {{ with .Definition -}}
+    {{ .Type }}_definition {
+      {{ if .AlertId -}}
+      alert_id = {{ .AlertId }}
+      {{- end }}
+      {{ if .VizType -}}
+      viz_type = {{ .VizType }}
+      {{- end }}
+      {{ if .Title -}}
+      title = {{ .Title }}
+      {{- end }}
+      {{ if .TitleSize -}}
+      title_size = {{ .TitleSize }}
+      {{- end }}
+      {{ if .TitleAlign -}}
+      title_align = {{ .TitleAlign }}
+      {{- end }}
+      {{ if .Precision -}}
+      precision = {{ .Precision }}
+      {{- end }}
+      {{ if .Unit -}}
+      unit = {{ .Unit }}
+      {{- end }}
+      {{ if .TextAlign -}}
+      text_align = {{ .TextAlign }}
+      {{- end }}
+      {{ if .Request -}}
+      {{ with .Request -}}
+      request {
+        {{ if .Q -}}
+        q
+        {{- end }}
+        {{ if .ApmQuery -}}
+        apm_query{
+          index
+          compute {
+            aggregation
+            facet
+            interval
+          }
+          search {
+            query
+          }
+          group_by {
+            facet
+            limit
+            sort {
+              aggregation
+              order
+              facet
+            }
+          }
+        }
+        {{- end }}
+        {{ if .LogQuery -}}
+        log_query{
+          index
+          compute {
+            aggregation
+            facet
+            interval
+          }
+          search {
+            query
+          }
+          group_by {
+            facet
+            limit
+            sort {
+              aggregation
+              order
+              facet
+            }
+          }
+        }
+        {{- end }}
+        {{ if .ProcessQuery -}}
+        process_query {
+          metric
+          search_by
+          filter_by
+          limit
+        }
+        {{- end }}
+        {{ if .ConditionalFormats -}}
+        conditional_formats {
+          comparator
+          value
+          palette
+          custom_bg_color
+          custom_fg_color
+          image_url
+        }
+        {{- end }}
+        {{ if .Aggregator -}}
+        aggregator
+        {{- end }}
+        {{ if .Alias -}}
+        alias
+        {{- end }}
+        {{ if .Limit -}}
+        limit
+        {{- end }}
+        {{ if .Order -}}
+        order
+        {{- end }}
+        {{ if .X -}}
+        x {
+          q
+          aggregator
+        }
+        {{- end }}
+        {{ if .Y -}}
+        y {
+          q
+          aggregator
+        }
+        {{- end }}
+        {{ if .NetworkQuery -}}
+        network_query{
+          index
+          compute {
+            aggregation
+            facet
+            interval
+          }
+          search {
+            query
+          }
+          group_by {
+            facet
+            limit
+            sort {
+              aggregation
+              order
+              facet
+            }
+          }
+        }
+        {{- end }}
+        {{ if .RumQuery -}}
+        rum_query{
+          index
+          compute {
+            aggregation
+            facet
+            interval
+          }
+          search {
+            query
+          }
+          group_by {
+            facet
+            limit
+            sort {
+              aggregation
+              order
+              facet
+            }
+          }
+        }
+        {{- end }}
+        {{ if .DisplayType -}}
+        display_type
+        {{- end }}
+        {{ if .Style -}}
+        style {
+          palette_flip
+          fill_min
+          fill_max
+          palette
+          line_type
+          line_width
+        }
+        {{- end }}
+        {{ if .Metadata -}}
+        metadata {
+          expression
+          alias_name
+        }
+        {{- end }}
+        {{ if .ChangeType -}}
+        change_type
+        {{- end }}
+        {{ if .CompareTo -}}
+        compare_to
+        {{- end }}
+        {{ if .IncreaseGood -}}
+        increase_good
+        {{- end }}
+        {{ if .OrderBy -}}
+        order_by
+        {{- end }}
+        {{ if .OrderDir -}}
+        order_dir
+        {{- end }}
+        {{ if .ShowPresent -}}
+        show_present
+        {{- end }}
+        {{ if .Fill -}}
+        fill {
+          q
+        }
+        {{- end }}
+        {{ if .Size -}}
+        size {
+          q
+        }
+        {{- end }}
+      }
+      {{- end }}
+      {{- end }}
+      {{ if .Check -}}
+      check = {{ .Check }}
+      {{- end }}
+      {{ if .Grouping -}}
+      grouping = {{ .Grouping }}
+      {{- end }}
+      {{ if .Group -}}
+      group = {{ .Group }}
+      {{- end }}
+      {{ if .GroupBy -}}
+      group_by = {{ .GroupBy }}
+      {{- end }}
+      {{ if .Tags -}}
+      tags = {{ .Tags }}
+      {{- end }}
+      {{ if .ShowLegend -}}
+      show_legend = {{ .ShowLegend }}
+      {{- end }}
+      {{ if .LegendSize -}}
+      legend_size = {{ .LegendSize }}
+      {{- end }}
+      {{ if .Query -}}
+      query = {{ .Query }}
+      {{- end }}
+      {{ if .EventSize -}}
+      event_size = {{ .EventSize }}
+      {{- end }}
+      {{ if .TagsExecution -}}
+      tags_execution = {{ .TagsExecution }}
+      {{- end }}
+      {{ if .Text -}}
+      text = {{ .Text }}
+      {{- end }}
+      {{ if .Color -}}
+      color = {{ .Color }}
+      {{- end }}
+      {{ if .FontSize -}}
+      font_size = {{ .FontSize }}
+      {{- end }}
+      {{ if .Yaxis -}}
+      {{ with .Yaxis -}}
+      yaxis {
+        {{ if .Label -}}
+        label = {{ .Label }}
+        {{- end }}
+        {{ if .Scale -}}
+        scale = {{ .Scale }}
+        {{- end }}
+        {{ if .Min -}}
+        min = {{ .Min }}
+        {{- end }}
+        {{ if .Max -}}
+        max = {{ .Max }}
+        {{- end }}
+        {{ if .IncludeZero -}}
+        include_zero = {{ .IncludeZero }}
+        {{- end }}
+      }
+      {{- end }}
+      {{- end }}
+      {{ if .Event -}}
+      {{ with .Event -}}
+      event {
+        {{ if .Query -}}
+        q = {{ .Query }}
+        {{- end }}
+        {{ if .TagsExecution -}}
+        tags_execution = {{ .TagsExecution }}
+        {{- end }}
+      }
+      {{- end }}
+      {{- end }}
+      {{ if .NodeType -}}
+      node_type = {{ .NodeType }}
+      {{- end }}
+      {{ if .NoMetricHosts -}}
+      no_metric_hosts = {{ .NoMetricHosts }}
+      {{- end }}
+      {{ if .NoGroupHosts -}}
+      no_group_hosts = {{ .NoGroupHosts }}
+      {{- end }}
+      {{ if .Scope -}}
+      scope = {{ .Scope }}
+      {{- end }}
+      {{ if .Sizing -}}
+      sizing = {{ .Sizing }}
+      {{- end }}
+      {{ if .Margin -}}
+      margin = {{ .Margin }}
+      {{- end }}
+      {{ if .Logset -}}
+      logset = {{ .Logset }}
+      {{- end }}
+      {{ if .Columns -}}
+      columns = {{ .Columns }}
+      {{- end }}
+      {{ if .ShowDateColumn -}}
+      show_date_column = {{ .ShowDateColumn }}
+      {{- end }}
+      {{ if .ShowMessageColumn -}}
+      show_message_column = {{ .ShowMessageColumn }}
+      {{- end }}
+      {{ if .MessageDisplay -}}
+      message_display = {{ .MessageDisplay }}
+      {{- end }}
+      {{ if .Sort -}}
+      sort = {{ .Sort }}
+      {{- end }}
+      {{ if .SummaryType -}}
+      summary_type = {{ .SummaryType }}
+      {{- end }}
+      {{ if .DisplayFormat -}}
+      display_format = {{ .DisplayFormat }}
+      {{- end }}
+      {{ if .ColorPreference -}}
+      color_preference = {{ .ColorPreference }}
+      {{- end }}
+      {{ if .HideZeroCounts -}}
+      hide_zero_counts = {{ .HideZeroCounts }}
+      {{- end }}
+      {{ if .ShowLastTriggered -}}
+      show_last_triggered = {{ .ShowLastTriggered }}
+      {{- end }}
+      {{ if .Content -}}
+      content = {{ .Content }}
+      {{- end }}
+      {{ if .BackgroundColor -}}
+      background_color = {{ .BackgroundColor }}
+      {{- end }}
+      {{ if .ShowTick -}}
+      show_tick = {{ .ShowTick }}
+      {{- end }}
+      {{ if .TickPos -}}
+      tick_pos = {{ .TickPos }}
+      {{- end }}
+      {{ if .TickEdge -}}
+      tick_edge = {{ .TickEdge }}
+      {{- end }}
+      {{ if .Autoscale -}}
+      autoscale = {{ .Autoscale }}
+      {{- end }}
+      {{ if .CustomUnit -}}
+      custom_unit = {{ .CustomUnit }}
+      {{- end }}
+      {{ if .Xaxis -}}
+      {{ with .Xaxis -}}
+      xaxis {
+        {{ if .Label -}}
+        label = {{ .Label }}
+        {{- end }}
+        {{ if .Scale -}}
+        scale = {{ .Scale }}
+        {{- end }}
+        {{ if .Min -}}
+        min = {{ .Min }}
+        {{- end }}
+        {{ if .Max -}}
+        max = {{ .Max }}
+        {{- end }}
+        {{ if .IncludeZero -}}
+        include_zero = {{ .IncludeZero }}
+        {{- end }}
+      }
+      {{- end }}
+      {{- end }}
+      {{ if .ColorByGroups -}}
+      color_by_groups = {{ .ColorByGroups }}
+      {{- end }}
+      {{ if .Filters -}}
+      filters = {{ .Filters }}
+      {{- end }}
+      {{ if .Service -}}
+      service = {{ .Service }}
+      {{- end }}
+      {{ if .ViewType -}}
+      view_type = {{ .ViewType }}
+      {{- end }}
+      {{ if .ServiceLevelObjectiveID -}}
+      slo_id = {{ .ServiceLevelObjectiveID }}
+      {{- end }}
+      {{ if .ShowErrorBudget -}}
+      show_error_budget = {{ .ShowErrorBudget }}
+      {{- end }}
+      {{ if .ViewMode -}}
+      view_mode = {{ .ViewMode }}
+      {{- end }}
+      {{ if .TimeWindows -}}
+      time_windows = {{ .TimeWindows }}
+      {{- end }}
+      {{ if .Marker -}}
+      {{ with .Marker -}}
+      marker {
+        {{ if .DisplayType -}}
+        display_type = {{ .DisplayType }}
+        {{- end }}
+        {{ if .Value -}}
+        value = {{ .Value }}
+        {{- end }}
+        {{ if .Label -}}
+        label = {{ .Label }}
+        {{- end }}
+      }
+      {{- end }}
+      {{- end }}
+      {{ if .Env -}}
+      env = {{ .Env }}
+      {{- end }}
+      {{ if .SpanName -}}
+      span_name = {{ .SpanName }}
+      {{- end }}
+      {{ if .ShowHits -}}
+      show_hits = {{ .ShowHits }}
+      {{- end }}
+      {{ if .ShowErrors -}}
+      show_errors = {{ .ShowErrors }}
+      {{- end }}
+      {{ if .ShowLatency -}}
+      show_latency = {{ .ShowLatency }}
+      {{- end }}
+      {{ if .ShowBreakdown -}}
+      show_breakdown = {{ .ShowBreakdown }}
+      {{- end }}
+      {{ if .ShowDistribution -}}
+      show_distribution = {{ .ShowDistribution }}
+      {{- end }}
+      {{ if .ShowResourceList -}}
+      show_resource_list = {{ .ShowResourceList }}
+      {{- end }}
+      {{ if .SizeFormat -}}
+      size_format = {{ .SizeFormat }}
+      {{- end }}
+      {{ if .Widgets -}}
+      {{ with .Widgets }}
+      {{ range . }}
+      widget {
+        {{ if .Layout -}}
+        {{ with .Layout -}}
+        layout {
+          x       = {{ .X }}
+          y       = {{ .Y }}
+          width   = {{ .Width }}
+          height  = {{ .Height }}
+        }
+        {{- end }}
+        {{- end }}
+        {{ with .Definition -}}
+        {{ .Type }}_definition {
+          {{ if .AlertId -}}
+          alert_id = {{ .AlertId }}
+          {{- end }}
+          {{ if .Viztype -}}
+          viz_type = {{ .VizType }}
+          {{- end }}
+          {{ if .Title -}}
+          title = {{ .Title }}
+          {{- end }}
+          {{ if .TitleSize -}}
+          title_size = {{ .TitleSize }}
+          {{- end }}
+          {{ if .TitleAlign -}}
+          title_align = {{ .TitleAlign }}
+          {{- end }}
+          {{ if .Time }}
+          {{ with .Time }}
+          time {
+            {{ if .LiveSpan }}
+            live_span = {{ .LiveSpan }}
+            {{ end }}
+          }
+          {{ end }}
+          {{ end }}
+          {{ if .Precision -}}
+          precision = {{ .Precision }}
+          {{- end }}
+          {{ if .Unit -}}
+          unit = {{ .Unit }}
+          {{- end }}
+          {{ if .TextAlign -}}
+          text_align = {{ .TextAlign }}
+          {{- end }}
+          {{ if .Request -}}
+          {{ with .Request -}}
+          request {
+            {{ if .Q -}}
+            q
+            {{- end }}
+            {{ if .ApmQuery -}}
+            apm_query{
+              index
+              compute {
+                aggregation
+                facet
+                interval
+              }
+              search {
+                query
+              }
+              group_by {
+                facet
+                limit
+                sort {
+                  aggregation
+                  order
+                  facet
+                }
+              }
+            }
+            {{- end }}
+            {{ if .LogQuery -}}
+            log_query{
+              index
+              compute {
+                aggregation
+                facet
+                interval
+              }
+              search {
+                query
+              }
+              group_by {
+                facet
+                limit
+                sort {
+                  aggregation
+                  order
+                  facet
+                }
+              }
+            }
+            {{- end }}
+            {{ if .ProcessQuery -}}
+            process_query {
+              metric
+              search_by
+              filter_by
+              limit
+            }
+            {{- end }}
+            {{ if .ConditionalFormats -}}
+            conditional_formats {
+              comparator
+              value
+              palette
+              custom_bg_color
+              custom_fg_color
+              image_url
+            }
+            {{- end }}
+            {{ if .Aggregator -}}
+            aggregator
+            {{- end }}
+            {{ if .Alias -}}
+            alias
+            {{- end }}
+            {{ if .Limit -}}
+            limit
+            {{- end }}
+            {{ if .Order -}}
+            order
+            {{- end }}
+            {{ if .X -}}
+            x {
+              q
+              aggregator
+            }
+            {{- end }}
+            {{ if .Y -}}
+            y {
+              q
+              aggregator
+            }
+            {{- end }}
+            {{ if .NetworkQuery -}}
+            network_query{
+              index
+              compute {
+                aggregation
+                facet
+                interval
+              }
+              search {
+                query
+              }
+              group_by {
+                facet
+                limit
+                sort {
+                  aggregation
+                  order
+                  facet
+                }
+              }
+            }
+            {{- end }}
+            {{ if .RumQuery -}}
+            rum_query{
+              index
+              compute {
+                aggregation
+                facet
+                interval
+              }
+              search {
+                query
+              }
+              group_by {
+                facet
+                limit
+                sort {
+                  aggregation
+                  order
+                  facet
+                }
+              }
+            }
+            {{- end }}
+            {{ if .DisplayType -}}
+            display_type
+            {{- end }}
+            {{ if .Style -}}
+            style {
+              palette_flip
+              fill_min
+              fill_max
+              palette
+              line_type
+              line_width
+            }
+            {{- end }}
+            {{ if .Metadata -}}
+            metadata {
+              expression
+              alias_name
+            }
+            {{- end }}
+            {{ if .ChangeType -}}
+            change_type
+            {{- end }}
+            {{ if .CompareTo -}}
+            compare_to
+            {{- end }}
+            {{ if .IncreaseGood -}}
+            increase_good
+            {{- end }}
+            {{ if .OrderBy -}}
+            order_by
+            {{- end }}
+            {{ if .OrderDir -}}
+            order_dir
+            {{- end }}
+            {{ if .ShowPresent -}}
+            show_present
+            {{- end }}
+            {{ if .Fill -}}
+            fill {
+              q
+            }
+            {{- end }}
+            {{ if .Size -}}
+            size {
+              q
+            }
+            {{- end }}
+          }
+          {{- end }}
+          {{- end }}
+          {{ if .Check -}}
+          check = {{ .Check }}
+          {{- end }}
+          {{ if .Grouping -}}
+          grouping = {{ .Grouping }}
+          {{- end }}
+          {{ if .Group -}}
+          group = {{ .Group }}
+          {{- end }}
+          {{ if .GroupBy -}}
+          group_by = {{ .GroupBy }}
+          {{- end }}
+          {{ if .Tags -}}
+          tags = {{ .Tags }}
+          {{- end }}
+          {{ if .ShowLegend -}}
+          show_legend = {{ .ShowLegend }}
+          {{- end }}
+          {{ if .LegendSize -}}
+          legend_size = {{ .LegendSize }}
+          {{- end }}
+          {{ if .Query -}}
+          query = {{ .Query }}
+          {{- end }}
+          {{ if .EventSize -}}
+          event_size = {{ .EventSize }}
+          {{- end }}
+          {{ if .TagsExecution -}}
+          tags_execution = {{ .TagsExecution }}
+          {{- end }}
+          {{ if .Text -}}
+          text = {{ .Text }}
+          {{- end }}
+          {{ if .Color -}}
+          color = {{ .Color }}
+          {{- end }}
+          {{ if .FontSize -}}
+          font_size = {{ .FontSize }}
+          {{- end }}
+          {{ if .Yaxis -}}
+          {{ with .Yaxis -}}
+          yaxis {
+            {{ if .Label -}}
+            label = {{ .Label }}
+            {{- end }}
+            {{ if .Scale -}}
+            scale = {{ .Scale }}
+            {{- end }}
+            {{ if .Min -}}
+            min = {{ .Min }}
+            {{- end }}
+            {{ if .Max -}}
+            max = {{ .Max }}
+            {{- end }}
+            {{ if .IncludeZero -}}
+            include_zero = {{ .IncludeZero }}
+            {{- end }}
+          }
+          {{- end }}
+          {{- end }}
+          {{ if .Event -}}
+          {{ with .Event -}}
+          event {
+            {{ if .Query -}}
+            q = {{ .Query }}
+            {{- end }}
+            {{ if .TagsExecution -}}
+            tags_execution = {{ .TagsExecution }}
+            {{- end }}
+          }
+          {{- end }}
+          {{- end }}
+          {{ if .NodeType -}}
+          node_type = {{ .NodeType }}
+          {{- end }}
+          {{ if .NoMetricHosts -}}
+          no_metric_hosts = {{ .NoMetricHosts }}
+          {{- end }}
+          {{ if .NoGroupHosts -}}
+          no_group_hosts = {{ .NoGroupHosts }}
+          {{- end }}
+          {{ if .Scope -}}
+          scope = {{ .Scope }}
+          {{- end }}
+          {{ if .Sizing -}}
+          sizing = {{ .Sizing }}
+          {{- end }}
+          {{ if .Margin -}}
+          margin = {{ .Margin }}
+          {{- end }}
+          {{ if .Logset -}}
+          logset = {{ .Logset }}
+          {{- end }}
+          {{ if .Columns -}}
+          columns = {{ .Columns }}
+          {{- end }}
+          {{ if .ShowDateColumn -}}
+          show_date_column = {{ .ShowDateColumn }}
+          {{- end }}
+          {{ if .ShowMessageColumn -}}
+          show_message_column = {{ .ShowMessageColumn }}
+          {{- end }}
+          {{ if .MessageDisplay -}}
+          message_display = {{ .MessageDisplay }}
+          {{- end }}
+          {{ if .Sort -}}
+          sort = {{ .Sort }}
+          {{- end }}
+          {{ if .SummaryType -}}
+          summary_type = {{ .SummaryType }}
+          {{- end }}
+          {{ if .DisplayFormat -}}
+          display_format = {{ .DisplayFormat }}
+          {{- end }}
+          {{ if .ColorPreference -}}
+          color_preference = {{ .ColorPreference }}
+          {{- end }}
+          {{ if .HideZeroCounts -}}
+          hide_zero_counts = {{ .HideZeroCounts }}
+          {{- end }}
+          {{ if .ShowLastTriggered -}}
+          show_last_triggered = {{ .ShowLastTriggered }}
+          {{- end }}
+          {{ if .Content -}}
+          content = {{ .Content }}
+          {{- end }}
+          {{ if .BackgroundColor -}}
+          background_color = {{ .BackgroundColor }}
+          {{- end }}
+          {{ if .ShowTick -}}
+          show_tick = {{ .ShowTick }}
+          {{- end }}
+          {{ if .TickPos -}}
+          tick_pos = {{ .TickPos }}
+          {{- end }}
+          {{ if .TickEdge -}}
+          tick_edge = {{ .TickEdge }}
+          {{- end }}
+          {{ if .Autoscale -}}
+          autoscale = {{ .Autoscale }}
+          {{- end }}
+          {{ if .CustomUnit -}}
+          custom_unit = {{ .CustomUnit }}
+          {{- end }}
+          {{ if .Xaxis -}}
+          {{ with .Xaxis -}}
+          xaxis {
+            {{ if .Label -}}
+            label = {{ .Label }}
+            {{- end }}
+            {{ if .Scale -}}
+            scale = {{ .Scale }}
+            {{- end }}
+            {{ if .Min -}}
+            min = {{ .Min }}
+            {{- end }}
+            {{ if .Max -}}
+            max = {{ .Max }}
+            {{- end }}
+            {{ if .IncludeZero -}}
+            include_zero = {{ .IncludeZero }}
+            {{- end }}
+          }
+          {{- end }}
+          {{- end }}
+          {{ if .ColorByGroups -}}
+          color_by_groups = {{ .ColorByGroups }}
+          {{- end }}
+          {{ if .Filters -}}
+          filters = {{ .Filters }}
+          {{- end }}
+          {{ if .Service -}}
+          service = {{ .Service }}
+          {{- end }}
+          {{ if .ViewType -}}
+          view_type = {{ .ViewType }}
+          {{- end }}
+          {{ if .ServiceLevelObjectiveID -}}
+          slo_id = {{ .ServiceLevelObjectiveID }}
+          {{- end }}
+          {{ if .ShowErrorBudget -}}
+          show_error_budget = {{ .ShowErrorBudget }}
+          {{- end }}
+          {{ if .ViewMode -}}
+          view_mode = {{ .ViewMode }}
+          {{- end }}
+          {{ if .TimeWindows -}}
+          time_windows = {{ .TimeWindows }}
+          {{- end }}
+          {{ if .Marker -}}
+          {{ with .Marker -}}
+          marker {
+            {{ if .DisplayType -}}
+            display_type = {{ .DisplayType }}
+            {{- end }}
+            {{ if .Value -}}
+            value = {{ .Value }}
+            {{- end }}
+            {{ if .Label -}}
+            label = {{ .Label }}
+            {{- end }}
+          }
+          {{- end }}
+          {{- end }}
+          {{ if .Env -}}
+          env = {{ .Env }}
+          {{- end }}
+          {{ if .SpanName -}}
+          span_name = {{ .SpanName }}
+          {{- end }}
+          {{ if .ShowHits -}}
+          show_hits = {{ .ShowHits }}
+          {{- end }}
+          {{ if .ShowErrors -}}
+          show_errors = {{ .ShowErrors }}
+          {{- end }}
+          {{ if .ShowLatency -}}
+          show_latency = {{ .ShowLatency }}
+          {{- end }}
+          {{ if .ShowBreakdown -}}
+          show_breakdown = {{ .ShowBreakdown }}
+          {{- end }}
+          {{ if .ShowDistribution -}}
+          show_distribution = {{ .ShowDistribution }}
+          {{- end }}
+          {{ if .ShowResourceList -}}
+          show_resource_list = {{ .ShowResourceList }}
+          {{- end }}
+          {{ if .SizeFormat -}}
+          size_format = {{ .SizeFormat }}
+          {{- end }}
+        }
+        {{- end }}
+      }
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{ if .Time }}
+      {{ with .Time }}
+      time {
+        {{ if .LiveSpan }}
+        live_span = {{ .LiveSpan }}
+        {{ end }}
+      }
+      {{ end }}
+      {{ end }}
+    }
+    {{- end }}
+  }
+  {{- end }}
+  {{- end }}
+}
