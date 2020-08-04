@@ -22,7 +22,7 @@ type LocalConfig struct {
 }
 
 var config = LocalConfig{
-	components: []DatadogElement{Dashboard{}, Monitor{}, ScreenBoard{}},
+	components: []DatadogElement{Timeboard{}, Monitor{}, ScreenBoard{}, Dashboard{}},
 }
 
 type DatadogElement interface {
@@ -63,7 +63,10 @@ func (i *Item) renderElement(item interface{}, config LocalConfig) {
 			log.Fatal(err)
 		}
 		out := bufio.NewWriter(f)
-		t.Execute(out, item)
+		err = t.Execute(out, item)
+		if err != nil {
+			log.Fatal(err)
+		}
 		out.Flush()
 		if err := f.Close(); err != nil {
 			log.Fatal(err)

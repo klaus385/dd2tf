@@ -1,9 +1,9 @@
 resource "datadog_monitor" "{{ .Id }}" {
   name               = "{{ .Name }}"
   type               = "{{ .Type }}"
-  {{- if .Tags }}
+  {{ if .Tags }}
   tags               = [{{range .Tags}}"{{.}}",{{end}}]
-  {{- end }}
+  {{ end }}
   message            = <<EOT
 {{ .Message }}
 EOT
@@ -13,53 +13,53 @@ EOT
 
   query = {{ .Query | escapeCharacters }}
 
-  {{- with .Options }}
-  {{- if .NotifyNoData }}
+  {{ with .Options }}
+  {{ if .NotifyNoData }}
   notify_no_data    = {{ .NotifyNoData }}
-  {{- end }}
-  {{- if .RenotifyInterval }}
+  {{ end }}
+  {{ if .RenotifyInterval }}
   renotify_interval = {{ .RenotifyInterval }}
-  {{- end }}
-  {{- if .NotifyAudit }}
+  {{ end }}
+  {{ if .NotifyAudit }}
   notify_audit = {{ .NotifyAudit }}
-  {{- end }}
-  {{- if .TimeoutH }}
+  {{ end }}
+  {{ if .TimeoutH }}
   timeout_h = {{ .TimeoutH }}
-  {{- end }}
-  {{- if .IncludeTags }}
+  {{ end }}
+  {{ if .IncludeTags }}
   include_tags = {{ .IncludeTags  }}
-  {{- end }}
-  {{- if .RequireFullWindow }}
+  {{ end }}
+  {{ if .RequireFullWindow }}
   require_full_window = {{ .RequireFullWindow }}
-  {{- end }}
-  {{- if .NewHostDelay }}
+  {{ end }}
+  {{ if .NewHostDelay }}
   new_host_delay = {{ .NewHostDelay }}
-  {{- end }}
-  {{- if .EvaluationDelay }}
+  {{ end }}
+  {{ if .EvaluationDelay }}
   evaluation_delay = {{ .EvaluationDelay }}
-  {{- end }}
+  {{ end }}
 
-  {{- if .Thresholds }}
-  {{- with .Thresholds }}
+  {{ if .Thresholds }}
+  {{ with .Thresholds }}
   thresholds {
-    {{- if .Ok }}
+    {{ if .Ok }}
     ok = {{ .Ok }}
-    {{- end }}
-    {{- if .Warning }}
+    {{ end }}
+    {{ if .Warning }}
     warning = {{ .Warning }}
-    {{- end }}
-    {{- if .WarningRecovery }}
+    {{ end }}
+    {{ if .WarningRecovery }}
     warning_recovery = {{ .WarningRecovery }}
-    {{- end }}
-    {{- if .Critical }}
+    {{ end }}
+    {{ if .Critical }}
     critical = {{ .Critical }}
-    {{- end }}
-    {{- if .CriticalRecovery }}
+    {{ end }}
+    {{ if .CriticalRecovery }}
     critical_recovery = {{ .CriticalRecovery }}
-    {{- end }}
+    {{ end }}
   }
-  {{- end }}
-  {{- end }}
-  {{- end }}
+  {{ end }}
+  {{ end }}
+  {{ end }}
 
 }

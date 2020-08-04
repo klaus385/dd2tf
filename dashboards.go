@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/zorkian/go-datadog-api"
 )
 
@@ -10,12 +11,19 @@ type Dashboard struct {
 }
 
 func (d Dashboard) getElement(client datadog.Client, id interface{}) (interface{}, error) {
-	dash, err := client.GetDashboard(id)
+	var idStr string
+	switch v := id.(type) {
+	case string:
+		idStr = v
+	default:
+		return "", errors.New("unsupported id type, should be string or int")
+	}
+	dash, err := client.GetBoard(idStr)
 	return dash, err
 }
 
 func (d Dashboard) getAsset() string {
-	return "tmpl/timeboard.tmpl"
+	return "tmpl/dashboard.tmpl"
 }
 
 func (d Dashboard) getName() string {
@@ -28,7 +36,7 @@ func (d Dashboard) String() string {
 
 func (d Dashboard) getAllElements(client datadog.Client) ([]Item, error) {
 	var ids []Item
-	dashboards, err := client.GetDashboards()
+	dashboards, err := client.GetBoards()
 	if err != nil {
 		return ids, err
 	}
