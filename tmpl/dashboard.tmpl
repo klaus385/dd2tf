@@ -1,0 +1,873 @@
+resource "datadog_dashboard" "dd_{{ .Id }}" {
+  title       = "{{ .Title }}"
+  layout_type = "{{ .LayoutType }}"
+  {{ if .Description -}}
+  description = "{{ .Description }}"
+  {{- end }}{{/* if */}}
+  {{ if .IsReadOnly -}}
+  read_only   = {{ .IsReadOnly }}
+  {{- end }}{{/* if */}}
+  {{ if .Url -}}
+  url   = "{{ .Url }}"
+  {{- end }}{{/* if */}}
+  {{ if .TemplateVariables -}}
+  {{ range .TemplateVariables }}
+  template_variable {
+    name    = "{{ .Name }}"
+    {{ if .Prefix -}}
+    prefix  = "{{ .Prefix }}"
+    {{- end }}{{/* if */}}
+    {{ if .Default -}}
+    default = {{ escapeCharacters .Default }}
+    {{- end }}{{/* if */}}
+  }
+  {{- end }}{{/* range */}}
+  {{- end }}{{/* if */}}
+  {{ if .NotifyList -}}
+  notify_list   = {{ .NotifyList }}
+  {{- end }}
+  {{ if .TemplateVariablePresets -}}
+  {{ range .TemplateVariablePresets }}
+  template_variable_presets {
+    name      = "{{ .Name }}"
+    {{ range .TemplateVariablePresetValue }}
+    template_variable {
+      name    = "{{ .Name }}"
+      value   = "{{ .Value }}"
+    }
+    {{- end }}{{/* range */}}
+  }
+  {{- end }}{{/* range */}}
+  {{- end }}{{/* if */}}
+  {{ range .Widgets }}
+  widget {
+    {{ block "WidgetPre" . -}}
+    {{ if .Layout -}}
+    {{ with .Layout -}}
+    layout {
+      x       = {{ .X }}
+      y       = {{ .Y }}
+      width   = {{ .Width }}
+      height  = {{ .Height }}
+    }
+    {{- end }}{{/* with */}}
+    {{- end }}{{/* if */}}
+    {{- end }}{{/* block */}}
+    {{ with .Definition -}}
+    {{ .Type }}_definition {
+      {{ block "ShallowWidget" . -}}
+      {{- if eq (DeRefString .Type) "alert_graph" }}
+        {{ block "TITLE" . -}}
+        {{ if .Title -}}
+        title = {{ escapeCharacters .Title }}
+        {{- end }}{{/* if */}}
+        {{ if .TitleSize -}}
+        title_size = {{ .TitleSize }}
+        {{- end }}{{/* if */}}
+        {{ if .TitleAlign -}}
+        title_align = "{{ .TitleAlign }}"
+        {{- end }}{{/* if */}}
+        {{- end }}{{/* block */}}
+
+        {{ block "Time" . -}}
+        {{ if .Time -}}
+        {{ with .Time -}}
+        time {
+          {{ if .LiveSpan -}}
+          live_span = "{{ .LiveSpan }}"
+          {{- end }}
+        }
+        {{- end }}{{/* with */}}
+        {{- end }}{{/* if */}}
+        {{- end }}{{/* block */}}
+
+        {{ if .AlertId -}}
+        alert_id = "{{ .AlertId }}"
+        {{- end }}
+        {{ if .VizType -}}
+        viz_type = "{{ .VizType }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "alert_value" }}
+        {{ template "TITLE" . -}}
+
+        {{ if .AlertId -}}
+        alert_id = "{{ .AlertId }}"
+        {{- end }}
+        {{ if .Precision -}}
+        precision = {{ .Precision }}
+        {{- end }}
+        {{ if .Unit -}}
+        unit = "{{ .Unit }}"
+        {{- end }}
+        {{ if .TextAlign -}}
+        text_align = "{{ .TextAlign }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "change" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Requests -}}
+        {{ range .Requests }}
+        request {
+          {{ if .MetricQuery -}}
+          q = "{{ .MetricQuery }}"
+          {{- end }}{{/* if */}}
+          {{ if .ChangeType -}}
+          change_type = "{{ .ChangeType }}"
+          {{- end }}
+          {{ if .CompateTo -}}
+          compare_to = "{{ .CompateTo }}"
+          {{- end }}
+          {{ if .IncreaseGood -}}
+          increase_good = {{ .IncreaseGood }}
+          {{- end }}
+          {{ if .OrderBy -}}
+          order_by = "{{ .OrderBy }}"
+          {{- end }}
+          {{ if .OrderDir -}}
+          order_dir = "{{ .OrderDir }}"
+          {{- end }}
+          {{ if .ShowPresent -}}
+          show_present = "{{ .ShowPresent }}"
+          {{- end }}
+        }
+        {{- end }}{{/* range */}}
+        {{- end }}{{/* if */}}
+      {{- else if eq (DeRefString .Type) "check_status" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Check -}}
+        check = "{{ .Check }}"
+        {{- end }}
+        {{ if .Grouping -}}
+        grouping = "{{ .Grouping }}"
+        {{- end }}
+        {{ if .Group -}}
+        group = "{{ .Group }}"
+        {{- end }}
+        {{ if .GroupBy -}}
+        group_by = "{{ .GroupBy }}"
+        {{- end }}
+        {{ if .Tags -}}
+        tags = [{{range .Tags}}"{{.}}",{{end}}]
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "distribution" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Requests -}}
+        {{ range .Requests }}
+        request {
+          {{ if .MetricQuery -}}
+          q = {{ escapeCharacters .MetricQuery }}
+          {{- end }}
+          {{ if .Style -}}
+          {{ with .Style -}}
+          style {
+            {{ if .Palette -}}
+            palette = "{{ .Palette }}"
+            {{- end }}
+          }
+          {{- end }}
+          {{- end }}
+        }
+        {{- end }}{{/* range */}}
+        {{- end }}{{/* if */}}
+
+        {{/* show_legend and legend_size not supported by api */}}
+      {{- else if eq (DeRefString .Type) "event_stream" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Query -}}
+        query = "{{ .Query }}"
+        {{- end }}
+        {{ if .EventSize -}}
+        event_size = "{{ .EventSize }}"
+        {{- end }}
+        {{ if .TagsExecution -}}
+        tags_execution = "{{ .TagsExecution }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "event_timeline" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Query -}}
+        query = "{{ .Query }}"
+        {{- end }}
+        {{ if .TagsExecution -}}
+        tags_execution = "{{ .TagsExecution }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "freetext" }}
+        {{ if .Text -}}
+        text = "{{ .Text }}"
+        {{- end }}
+        {{ if .Color -}}
+        color = "{{ .Color }}"
+        {{- end }}
+        {{ if .FontSize -}}
+        font_size = "{{ .FontSize }}"
+        {{- end }}
+        {{ if .TextAlign -}}
+        text_align = "{{ .TextAlign }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "heatmap" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Requests -}}
+        {{ range .Requests }}
+        request {
+          {{ if .MetricQuery -}}
+          q = "{{ .MetricQuery }}"
+          {{- end }}{{/* if */}}
+          {{ if .Style -}}
+          {{ with .Style -}}
+          style {
+            {{ if .Palette -}}
+            palette = "{{ .Palette }}"
+            {{- end }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+        }
+        {{- end }}{{/* range */}}
+        {{- end }}{{/* if */}}
+
+        {{ block "Yaxis" . -}}
+        {{ if .Yaxis -}}
+        {{ with .Yaxis -}}
+        yaxis {
+          {{ if .Label -}}
+          label = "{{ .Label }}"
+          {{- end }}
+          {{ if .Scale -}}
+          scale = "{{ .Scale }}"
+          {{- end }}
+          {{ if .Min -}}
+          min = "{{ .Min }}"
+          {{- end }}
+          {{ if .Max -}}
+          max = "{{ .Max }}"
+          {{- end }}
+          {{ if .IncludeZero -}}
+          include_zero = {{ .IncludeZero }}
+          {{- end }}
+        }
+        {{- end }}{{/* with */}}
+        {{- end }}{{/* if */}}
+        {{- end }}{{/* block */}}
+
+        {{ block "Events" . -}}
+        {{ if .Events -}}
+        {{ range .Events }}
+        event {
+          {{ if .Query -}}
+          query = {{ escapeCharacters .Query }}
+          {{- end }}
+        }
+        {{- end }}{{/* with */}}
+        {{- end }}{{/* if */}}
+        {{- end }}{{/* block */}}
+
+        {{/* show_legend and legend_size not supported by api */}}
+      {{- else if eq (DeRefString .Type) "hostmap" }}
+        {{ template "TITLE" . }}
+
+        {{ if .Requests -}}
+        {{/* Range not supported by api, but multiple request blocks allowed by tf */}}
+        request {
+          {{ if .Fill -}}
+          {{ with .Fill -}}
+          fill {
+            {{ if .MetricQuery -}}
+            q = {{ escapeCharacters .MetricQuery }}
+            {{- end }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ if .Size -}}
+          {{ with .Size -}}
+          size {
+            {{ if .MetricQuery -}}
+            q = {{ escapeCharacters .MetricQuery }}
+            {{- end }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+        }
+        {{- end }}{{/* if */}}
+
+        {{ if .Style -}}
+        {{ with .Style -}}
+        style {
+          {{ if .Palette -}}
+          palette = "{{ .Palette }}"
+          {{- end }}
+          {{ if .PaletteFlip -}}
+          palette_flip = {{ .PaletteFlip }}
+          {{- end }}
+          {{ if .FillMin -}}
+          fill_min = "{{ .FillMin }}"
+          {{- end }}
+          {{ if .FillMax -}}
+          fill_max = "{{ .FillMax }}"
+          {{- end }}
+        }
+        {{- end }}
+        {{- end }}
+
+        {{ if .NodeType -}}
+        node_type = "{{ .NodeType }}"
+        {{- end }}
+        {{ if .NoMetricHosts -}}
+        no_metric_hosts = {{ .NoMetricHosts }}
+        {{- end }}
+        {{ if .NoGroupHosts -}}
+        no_group_hosts = {{ .NoGroupHosts }}
+        {{- end }}
+        {{ if .Group -}}
+        group = [{{range .Group}}"{{.}}",{{end}}]
+        {{- end }}
+        {{ if .Scope -}}
+        scope = [{{range .Scope}}"{{.}}",{{end}}]
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "iframe" }}
+        {{ if .Url -}}
+        url = "{{ .Url }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "image" }}
+        {{ if .Url -}}
+        url = "{{ .Url }}"
+        {{- end }}
+        {{ if .Sizing -}}
+        sizing = "{{ .Sizing }}"
+        {{- end }}
+        {{ if .Margin -}}
+        margin = "{{ .Margin }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "log_stream" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Logset -}}
+        logset = "{{ .Logset }}"
+        {{- end }}
+        {{ if .Query -}}
+        query = "{{ .Query }}"
+        {{- end }}
+        {{ if .Columns -}}
+        columns = "[{{range .Columns}}"{{.}}",{{end}}]"
+        {{- end }}
+        {{ if .ShowDateColumn -}}
+        show_date_column = {{ .ShowDateColumn }}
+        {{- end }}
+        {{ if .ShowMessageColumn -}}
+        show_message_column = {{ .ShowMessageColumn }}
+        {{- end }}
+        {{ if .MessageDisplay -}}
+        message_display = "{{ .MessageDisplay }}"
+        {{- end }}
+        {{ if .Sort -}}
+        {{ with .Sort -}}
+        sort = "{\"column\": "{{ .Column }}", \"order\": "{{ .Order }}"}"
+        {{- end }}
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "manage_status" }}
+        {{ template "TITLE" . }}
+
+        {{ if .Query -}}
+        query = "{{ .Query }}"
+        {{- end }}
+        {{ if .SummaryType -}}
+        summary_type = "{{ .SummaryType }}"
+        {{- end }}
+        {{ if .Sort -}}
+        sort = "{{ .Sort }}"
+        {{- end }}
+        {{ if .DisplayFormat -}}
+        display_format = "{{ .DisplayFormat }}"
+        {{- end }}
+        {{ if .ColorPreference -}}
+        color_preference = "{{ .ColorPreference }}"
+        {{- end }}
+        {{ if .HideZeroCounts -}}
+        hide_zero_counts = {{ .HideZeroCounts }}
+        {{- end }}
+        {{ if .ShowLastTriggered -}}
+        show_last_triggered = {{ .ShowLastTriggered }}
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "note" }}
+        {{ if .Content -}}
+        content = "{{ .Content }}"
+        {{- end }}
+        {{ if .BackgroundColor -}}
+        background_color = "{{ .BackgroundColor }}"
+        {{- end }}
+        {{ if .FontSize -}}
+        font_size = "{{ .FontSize }}"
+        {{- end }}
+        {{ if .TextAlign -}}
+        tetx_align = "{{ .TextAlign }}"
+        {{- end }}
+        {{ if .ShowTick -}}
+        show_tick = {{ .ShowTick }}
+        {{- end }}
+        {{ if .TickPos -}}
+        tick_pos = "{{ .TickPos }}"
+        {{- end }}
+        {{ if .TickEdge -}}
+        tick_edge = "{{ .TickEdge }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "query_value" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Requests -}}
+        {{ range .Requests }}
+          {{ if .MetricQuery -}}
+          q = "{{ .MetricQuery }}"
+          {{- end }}{{/* if */}}
+          {{ if .LogQuery -}}
+          {{ with .LogQuery -}}
+          log_query {
+            {{ block "ApmOrLogQuery" . }}
+            {{ if .Index -}}
+            index = "{{ .Index }}"
+            {{- end }}{{/* if */}}
+            {{ if .Compute -}}
+            {{ with .Compute -}}
+            compute {
+              {{ if .Aggregation -}}
+              aggregation = "{{ .Aggregation }}"
+              {{- end }}
+              {{ if .Facet -}}
+              facet = "{{ .Facet }}"
+              {{- end }}
+              {{ if .Interval -}}
+              interval = {{ .Interval }}
+              {{- end }}
+            }
+            {{- end }}{{/* with */}}
+            {{- end }}{{/* if */}}
+            {{ if .Search -}}
+            {{ with .Search -}}
+            search {
+              {{ if .Query -}}
+              query = {{ escapeCharacters .Query }}
+              {{- end }}
+            }
+            {{- end }}{{/* with */}}
+            {{- end }}{{/* if */}}
+            {{ if .GroupBy -}}
+            {{ range .GroupBy }}
+            group_by {
+              {{ if .Facet -}}
+              facet = "{{ .Facet }}"
+              {{- end }}{{/* if */}}
+              {{ if .Limit -}}
+              limit = {{ .Limit }}
+              {{- end }}{{/* if */}}
+              {{ if .Sort -}}
+              {{ with .Sort -}}
+              sort {
+                {{ if .Aggregation -}}
+                aggregation = "{{ .Aggregation }}"
+                {{- end }}
+                {{ if .Order -}}
+                order = "{{ .Order }}"
+                {{- end }}
+                {{ if .Facet -}}
+                facet = "{{ .Facet }}"
+                {{- end }}
+              }
+              {{- end }}{{/* with */}}
+              {{- end }}{{/* if */}}
+            }
+            {{- end }}{{/* range */}}
+            {{- end }}{{/* if */}}
+            {{- end }}{{/* block ApmOrLogQuery */}}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ if .ApmQuery -}}
+          {{ with .ApmQuery -}}
+          apm_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ block "ProcessQuery" . -}}
+          {{ if .ProcessQuery -}}
+          {{ with .ProcessQuery -}}
+          process_query {
+            {{ if .Metric -}}
+            metric = "{{ .Metric }}"
+            {{- end }}
+            {{ if .SeachBy -}}
+            search_by = "{{ .SearchBy }}"
+            {{- end }}
+            {{ if .FilterBy -}}
+            filter_by = "{{ .FilterBy}}"
+            {{- end }}
+            {{ if .Limit -}}
+            limit = "{{ .Limit }}"
+            {{- end }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{- end }}{{/* block */}}
+          {{ block "ConditionalFormats" . -}}
+          {{ if .ConditionalFormats -}}
+          {{ range .ConditionalFormats }}
+          conditional_formats {
+            {{ if .Comparator -}}
+            comparator = "{{ .Comparator }}"
+            {{- end }}
+            {{ if .Value -}}
+            value = "{{ .Value }}"
+            {{- end }}
+            {{ if .Palette -}}
+            palette = "{{ .Palette }}"
+            {{- end }}
+            {{ if .CustomBgColor -}}
+            custom_bg_color = "{{ .CustomBgColor }}"
+            {{- end }}
+            {{ if .CustomFgColor -}}
+            custom_fg_color = "{{ .CustomFgColor }}"
+            {{- end }}
+            {{ if .ImageUrl -}}
+            image_url = "{{ .ImageUrl }}"
+            {{- end }}
+          }
+          {{- end }}{{/* range */}}
+          {{- end }}{{/* if */}}
+          {{- end }}{{/* block */}}
+          {{ if .Aggregator -}}
+          aggregator = "{{ .Aggregator }}"
+          {{- end }}
+        {{- end }}{{/* range */}}
+        {{- end }}{{/* if */}}
+
+        {{ if .Autoscale -}}
+        autoscale = {{ .Autoscale }}
+        {{- end }}
+        {{ if .CustomUnit -}}
+        custom_unit = "{{ .CustomUnit }}"
+        {{- end }}
+        {{ if .Precision -}}
+        precision = {{ .Precision }}
+        {{- end }}
+        {{ if .TextAlign -}}
+        text_align = "{{ .TextAlign }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "query_table" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Requests -}}
+        {{ range .Requests }}
+        request {
+          {{ if .MetricQuery -}}
+          q = "{{ .MetricQuery }}"
+          {{- end }}{{/* if */}}
+          {{ if .LogQuery -}}
+          {{ with .LogQuery -}}
+          log_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ if .ApmQuery -}}
+          {{ with .ApmQuery -}}
+          apm_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ template "ProcessQuery" . }}
+          {{ template "ConditionalFormats" . }}
+          {{ if .Alias -}}
+          alias = "{{ .Alias }}"
+          {{- end }}
+          {{ if .Aggregator -}}
+          aggregator = "{{ .Aggregator }}"
+          {{- end }}
+          {{ if .Limit -}}
+          limit = {{ .Limit }}
+          {{- end }}
+          {{ if .Order -}}
+          order = "{{ .Order }}"
+          {{- end }}
+        }
+        {{- end }}{{/* range */}}
+        {{- end }}{{/* if */}}
+      {{- else if eq (DeRefString .Type) "scatterplot" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+        {{ template "Yaxis" . }}
+
+        {{ if .Requests -}}
+        {{ with .Requests -}}
+        request {
+          {{ if .X -}}
+          {{ with .X -}}
+          x {
+            {{ if .MetricQuery -}}
+            q = {{ escapeCharacters .MetricQuery }}
+            {{- end }}
+            {{ if .Aggregator -}}
+            aggregator = {{ .Aggregator }}
+            {{- end }}
+          }
+          {{- end }}
+          {{- end }}
+          {{ if .Y -}}
+          {{ with .Y -}}
+          y {
+            {{ if .MetricQuery -}}
+            q = {{ escapeCharacters .MetricQuery }}
+            {{- end }}
+            {{ if .Aggregator -}}
+            aggregator = {{ .Aggregator }}
+            {{- end }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+        }
+        {{- end }}{{/* with */}}
+        {{- end }}{{/* if */}}
+
+        {{ block "Xaxis" . -}}
+        {{ if .Xaxis -}}
+        {{ with .Xaxis -}}
+        xaxis {
+          {{ if .Label -}}
+          label = "{{ .Label }}"
+          {{- end }}
+          {{ if .Scale -}}
+          scale = "{{ .Scale }}"
+          {{- end }}
+          {{ if .Min -}}
+          min = "{{ .Min }}"
+          {{- end }}
+          {{ if .Max -}}
+          max = "{{ .Max }}"
+          {{- end }}
+          {{ if .IncludeZero -}}
+          include_zero = {{ .IncludeZero }}
+          {{- end }}
+        }
+        {{- end }}{{/* with */}}
+        {{- end }}{{/* if */}}
+        {{- end }}{{/* block */}}
+
+
+        {{ if .ColorByGroups -}}
+        color_by_groups = [{{range .ColorByGroups}}"{{.}}",{{end}}]
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "servicemap" }}
+        {{/* not supported by api wrapper */}}
+        {{ template "TITLE" . }}
+
+        {{ if .Filters -}}
+        filters = "{{ .Filters }}"
+        {{- end }}
+        {{ if .Service -}}
+        serivce = "{{ .Service }}"
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "service_level_objective" }}
+        {{ template "TITLE" . }}
+
+        {{ if .ViewType -}}
+        view_type = "{{ .ViewType }}"
+        {{- end }}
+        {{ if .ServiceLevelObjectiveID -}}
+        slo_id = "{{ .ServiceLevelObjectiveID }}"
+        {{- end }}
+        {{ if .ShowErrorBudget -}}
+        show_error_budget = {{ .ShowErrorBudget }}
+        {{- end }}
+        {{ if .ViewMode -}}
+        view_mode = "{{ .ViewMode }}"
+        {{- end }}
+        {{ if .TimeWindows -}}
+        time_windows = [{{range .TimeWindows }}"{{.}}",{{end}}]
+        {{- end }}
+      {{- else if eq (DeRefString .Type) "timeseries" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+        {{ template "Events" . }}
+        {{ template "Yaxis" . }}
+
+        {{ if .Requests -}}
+        {{ range .Requests }}
+        request {
+          {{ if .MetricQuery -}}
+          q = "{{ .MetricQuery }}"
+          {{- end }}{{/* if */}}
+          {{ if .LogQuery -}}
+          {{ with .LogQuery -}}
+          log_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ if .ApmQuery -}}
+          {{ with .ApmQuery -}}
+          apm_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ if .SecurityQuery -}}
+          {{ with .SecurityQuery -}}
+          network_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ if .RumQuery -}}
+          {{ with .RumQuery -}}
+          rum_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ template "ProcessQuery" . -}}
+          {{ if .DisplayType -}}
+          display_type = "{{ .DisplayType}}"
+          {{- end }}
+          {{ if .Style -}}
+          {{ with .Style -}}
+          style {
+            {{ if .Palette -}}
+            palette = "{{ .Palette }}"
+            {{- end }}
+            {{ if .LineWidth -}}
+            width = "{{ .LineWidth }}"
+            {{- end }}
+            {{ if .LineType -}}
+            type = "{{ .LineType }}"
+            {{- end }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ if .Metadata -}}
+          {{ with .Metadata -}}
+          metadata {
+            expression = "{{ .Expression }}"
+            alias_name = "{{ .AliasName }}"
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+        }
+        {{- end }}{{/* range */}}
+        {{- end }}{{/* if */}}
+        {{ if .ShowLegend -}}
+        show_legend = {{ .ShowLegend }}
+        {{- end }}{{/* if */}}
+        {{ if .LegendSize -}}
+        legend_size = {{ .LegendSize }}
+        {{- end }}{{/* if */}}
+        {{ if .Markers -}}
+        {{ range .Markers }}
+        marker {
+          {{ if .DisplayType -}}
+          display_type = "{{ .DisplayType }}"
+          {{- end }}
+          {{ if .Value -}}
+          value = "{{ .Value }}"
+          {{- end }}
+          {{ if .Label -}}
+          label = "{{ .Label }}"
+          {{- end }}
+        }
+        {{- end }}{{/* range */}}
+        {{- end }}{{/* if */}}
+      {{- else if eq (DeRefString .Type) "toplist"}}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Requests -}}
+        {{ range .Requests }}
+          {{ if .MetricQuery -}}
+          q = "{{ .MetricQuery }}"
+          {{- end }}{{/* if */}}
+          {{ if .LogQuery -}}
+          {{ with .LogQuery -}}
+          log_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ if .ApmQuery -}}
+          {{ with .ApmQuery -}}
+          apm_query {
+            {{ template "ApmOrLogQuery" . }}
+          }
+          {{- end }}{{/* with */}}
+          {{- end }}{{/* if */}}
+          {{ template "ProcessQuery" . -}}
+          {{ template "ConditionalFormats" . -}}
+        {{- end }}{{/* range */}}
+        {{- end }}{{/* if */}}
+      {{- else if eq (DeRefString .Type) "trace_service" }}
+        {{ template "TITLE" . }}
+        {{ template "Time" . }}
+
+        {{ if .Env -}}
+        env = "{{ .Env }}"
+        {{- end }}{{/* if */}}
+        {{ if .Service -}}
+        service = "{{ .Service }}"
+        {{- end }}{{/* if */}}
+        {{ if .SpanName -}}
+        span_name = "{{ .SpanName }}"
+        {{- end }}{{/* if */}}
+        {{ if .ShowHits -}}
+        show_hits = {{ .ShowHits }}
+        {{- end }}{{/* if */}}
+        {{ if .ShowErrors -}}
+        show_errors = {{ .ShowErrors }}
+        {{- end }}{{/* if */}}
+        {{ if .ShowLatency -}}
+        show_latency = {{ .ShowLatency }}
+        {{- end }}{{/* if */}}
+        {{ if .ShowBreakdown -}}
+        show_breakdown = {{ .ShowBreakdown }}
+        {{- end }}{{/* if */}}
+        {{ if .ShowDistribution -}}
+        show_distribution = {{ .ShowDistribution }}
+        {{- end }}{{/* if */}}
+        {{ if .ShowResourceList -}}
+        show_resource_list = {{ .ShowResourceList }}
+        {{- end }}{{/* if */}}
+        {{ if .SizeFormat -}}
+        size_format = "{{ .SizeFormat }}"
+        {{- end }}{{/* if */}}
+        {{ if .DisplayFormat -}}
+        display_format = "{{ .DisplayFormat }}"
+        {{- end }}{{/* if */}}
+      {{- end }}{{/* if widget switch */}}
+      {{- end }}{{/* end block widget def */}}
+      {{ if eq (DeRefString .Type) "group" }}
+        title       = "{{ .Title }}"
+        layout_type = "{{ .LayoutType }}"
+        {{ range .Widgets }}
+        widget {
+          {{ template "WidgetPre" . }}
+          {{ with .Definition -}}
+          {{ .Type }}_definition {
+            {{ template "ShallowWidget" . }}
+          }
+          {{- end }}{{/* with definition nested*/}}
+        }
+        {{- end }}{{/* range */}}
+      {{- end }}{{/* Group if */}}
+    }
+    {{- end }}{{/* with definition */}}
+  }
+  {{- end }}{{/* range Widgets*/}}
+}
