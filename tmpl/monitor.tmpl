@@ -1,8 +1,8 @@
-resource "datadog_monitor" "{{ .Id }}" {
-  name               = "{{ .Name }}"
+resource "datadog_monitor" "dd_{{ .Id }}" {
+  name               = {{ escapeCharacters .Name }}
   type               = "{{ .Type }}"
   {{- if .Tags }}
-  tags               = [{{range .Tags}}"{{.}}",{{end}}]
+  tags               = [{{range .Tags}}{{ escapeCharacters .}},{{end}}]
   {{- end }}
   message            = <<EOT
 {{ .Message }}
@@ -41,7 +41,7 @@ EOT
 
   {{- if .Thresholds }}
   {{- with .Thresholds }}
-  thresholds {
+  thresholds = {
     {{- if .Ok }}
     ok = {{ .Ok }}
     {{- end }}

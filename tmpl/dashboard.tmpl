@@ -2,10 +2,9 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
   title       = "{{ .Title }}"
   layout_type = "{{ .LayoutType }}"
   {{ if .Description -}}
-  description = "{{ .Description }}"
-  {{- end }}{{/* if */}}
-  {{ if .IsReadOnly -}}
-  read_only   = {{ .IsReadOnly }}
+  description = <<EOT
+{{ escapeCharacters .Description }}
+EOT
   {{- end }}{{/* if */}}
   {{ if .Url -}}
   url   = "{{ .Url }}"
@@ -24,18 +23,20 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
   {{- end }}{{/* range */}}
   {{- end }}{{/* if */}}
   {{ if .NotifyList -}}
-  notify_list   = {{ .NotifyList }}
+  notify_list   = [{{range .NotifyList}}"{{.}}",{{end}}]
   {{- end }}
   {{ if .TemplateVariablePresets -}}
   {{ range .TemplateVariablePresets }}
-  template_variable_presets {
+  template_variable_preset {
     name      = "{{ .Name }}"
-    {{ range .TemplateVariablePresetValue }}
+    {{ if .TemplateVariables -}}
+    {{ range .TemplateVariables }}
     template_variable {
       name    = "{{ .Name }}"
       value   = "{{ .Value }}"
     }
     {{- end }}{{/* range */}}
+    {{- end }}{{/* if */}}
   }
   {{- end }}{{/* range */}}
   {{- end }}{{/* if */}}
@@ -44,7 +45,7 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
     {{ block "WidgetPre" . -}}
     {{ if .Layout -}}
     {{ with .Layout -}}
-    layout {
+    layout = {
       x       = {{ .X }}
       y       = {{ .Y }}
       width   = {{ .Width }}
@@ -72,7 +73,7 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
         {{ block "Time" . -}}
         {{ if .Time -}}
         {{ with .Time -}}
-        time {
+        time = {
           {{ if .LiveSpan -}}
           live_span = "{{ .LiveSpan }}"
           {{- end }}
@@ -409,7 +410,7 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
         font_size = "{{ .FontSize }}"
         {{- end }}
         {{ if .TextAlign -}}
-        tetx_align = "{{ .TextAlign }}"
+        text_align = "{{ .TextAlign }}"
         {{- end }}
         {{ if .ShowTick -}}
         show_tick = {{ .ShowTick }}
@@ -426,6 +427,7 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
 
         {{ if .Requests -}}
         {{ range .Requests }}
+        request {
           {{ if .MetricQuery -}}
           q = "{{ .MetricQuery }}"
           {{- end }}{{/* if */}}
@@ -438,7 +440,8 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
             {{- end }}{{/* if */}}
             {{ if .Compute -}}
             {{ with .Compute -}}
-            compute {
+            {{ block "Compute" . }}
+            compute = {
               {{ if .Aggregation -}}
               aggregation = "{{ .Aggregation }}"
               {{- end }}
@@ -449,11 +452,15 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
               interval = {{ .Interval }}
               {{- end }}
             }
+            {{- end }}{{/* block */}}
             {{- end }}{{/* with */}}
+            {{- end }}{{/* if */}}
+            {{ if .MultiCompute -}}
+            {{/* MultiCompute not supported by terraform datadog provider*/}}
             {{- end }}{{/* if */}}
             {{ if .Search -}}
             {{ with .Search -}}
-            search {
+            search = {
               {{ if .Query -}}
               query = {{ escapeCharacters .Query }}
               {{- end }}
@@ -471,7 +478,7 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
               {{- end }}{{/* if */}}
               {{ if .Sort -}}
               {{ with .Sort -}}
-              sort {
+              sort = {
                 {{ if .Aggregation -}}
                 aggregation = "{{ .Aggregation }}"
                 {{- end }}
@@ -547,6 +554,7 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
           {{ if .Aggregator -}}
           aggregator = "{{ .Aggregator }}"
           {{- end }}
+        }
         {{- end }}{{/* range */}}
         {{- end }}{{/* if */}}
 
@@ -746,21 +754,25 @@ resource "datadog_dashboard" "dd_{{ .Id }}" {
             palette = "{{ .Palette }}"
             {{- end }}
             {{ if .LineWidth -}}
-            width = "{{ .LineWidth }}"
+            line_width = "{{ .LineWidth }}"
             {{- end }}
             {{ if .LineType -}}
-            type = "{{ .LineType }}"
+            line_type = "{{ .LineType }}"
             {{- end }}
           }
           {{- end }}{{/* with */}}
           {{- end }}{{/* if */}}
           {{ if .Metadata -}}
-          {{ with .Metadata -}}
+          {{ range .Metadata -}}
           metadata {
+            {{ if .Expression -}}
             expression = "{{ .Expression }}"
+            {{- end }}
+            {{ if .AliasName -}}
             alias_name = "{{ .AliasName }}"
+            {{- end }}
           }
-          {{- end }}{{/* with */}}
+          {{- end }}{{/* range */}}
           {{- end }}{{/* if */}}
         }
         {{- end }}{{/* range */}}
