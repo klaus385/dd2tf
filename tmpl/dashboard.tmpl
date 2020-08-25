@@ -200,7 +200,7 @@ EOT
         {{ if .TagsExecution -}}
         tags_execution = "{{ .TagsExecution }}"
         {{- end }}
-      {{- else if eq (DeRefString .Type) "freetext" }}
+      {{- else if eq (DeRefString .Type) "free_text" }}
         {{ if .Text -}}
         text = "{{ .Text }}"
         {{- end }}
