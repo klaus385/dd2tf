@@ -1,1 +1,5 @@
 bin/
+screenboards-.*
+dashboards-.*
+*.tf
+klaus385-dd2tf
