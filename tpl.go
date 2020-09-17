@@ -85,7 +85,7 @@ func tmplMonitorTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "tmpl/monitor.tmpl", size: 1602, mode: os.FileMode(420), modTime: time.Unix(1597429847, 0)}
+	info := bindataFileInfo{name: "tmpl/monitor.tmpl", size: 1602, mode: os.FileMode(420), modTime: time.Unix(1600379471, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -105,7 +105,7 @@ func tmplScreenboardTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "tmpl/screenboard.tmpl", size: 8376, mode: os.FileMode(420), modTime: time.Unix(1597338736, 0)}
+	info := bindataFileInfo{name: "tmpl/screenboard.tmpl", size: 8376, mode: os.FileMode(420), modTime: time.Unix(1600379331, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -125,7 +125,7 @@ func tmplTimeboardTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "tmpl/timeboard.tmpl", size: 2261, mode: os.FileMode(420), modTime: time.Unix(1597338736, 0)}
+	info := bindataFileInfo{name: "tmpl/timeboard.tmpl", size: 2261, mode: os.FileMode(420), modTime: time.Unix(1600379331, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
